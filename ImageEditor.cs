@@ -4,10 +4,6 @@ using System.IO;
 
 class ImageEditor
 {
-    public enum ImageFormat {
-        png,
-        jpg
-    }
     private static bool dimensionsAreValid(System.Drawing.Size size) {
         // max permissible size is 4k resolution
         const uint max_resolution_width = 3840;
@@ -18,12 +14,12 @@ class ImageEditor
         return width_valid && height_valid;
     }
 
-    private static string cachedImagePath(string path, System.Drawing.Size size, ImageFormat format, string watermark, Color background) {
+    private static string cachedImagePath(string path, System.Drawing.Size size, System.Drawing.Imaging.ImageFormat format, string watermark, Color background) {
         // TODO: implement cache, and return a valid string pointing to the cached image if it exists
         return "";
     }
 
-    public static Image getImage(string path, System.Drawing.Size desired_size, ImageFormat format, string watermark = "", Color background_color = default(Color)) {
+    public static Image getImage(string path, System.Drawing.Size desired_size, System.Drawing.Imaging.ImageFormat format, string watermark = "", Color background_color = default(Color)) {
         if (!File.Exists(path)) {
             throw new FileNotFoundException();
         }

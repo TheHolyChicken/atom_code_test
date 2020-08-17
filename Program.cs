@@ -11,7 +11,7 @@ namespace atom_code_test
             try {
                 ImageEditor.getImage("C:/work/atom_code_test/product_images/01_04_2019_001123.png"
                 , new System.Drawing.Size(537, 512)
-                , ImageEditor.ImageFormat.png
+                , System.Drawing.Imaging.ImageFormat.Png
                 , "watermark"
                 , default(Color));
             }
