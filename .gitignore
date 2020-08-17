@@ -33,3 +33,4 @@ msbuild.wrn
 
 # Project-specific ignores
 product_images/
+cache_images/
