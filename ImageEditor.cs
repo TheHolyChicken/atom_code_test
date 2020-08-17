@@ -43,12 +43,19 @@ class ImageEditor
                 }
 
                 // paint the original image
+                Image original_image = new Bitmap(path);
+                graphics.DrawImage(original_image, 0, 0, desired_size.Width, desired_size.Height);
 
                 // paint the watermark
                 if (watermark.Length > 0) {
                 }
 
                 // save finished image to the cache
+                string cache_image_folder = "C:/work/atom_code_test/cache_images/";
+                string cache_image_name = "test";
+                string cache_image_path = cache_image_folder + cache_image_name + "." + format.ToString();
+                Directory.CreateDirectory(cache_image_folder);
+                adjusted_image.Save(cache_image_path, format);
             }
         }
 
