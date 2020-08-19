@@ -10,7 +10,7 @@ namespace atom_code_test
         {
             var cache_folder = "C:/work/atom_code_test/cache_images/";
             var cache = new ImageCache.IImageCache_Dummy(cache_folder);
-            var image_editor = new ImageEditor(cache);
+            var image_editor = new ImageProvider(cache);
 
             try {
                 image_editor.getImage("C:/work/atom_code_test/product_images/01_04_2019_001123.png"

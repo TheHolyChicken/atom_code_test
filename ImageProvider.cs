@@ -3,9 +3,9 @@ using System.Drawing;
 using System.IO;
 using ImageCache;
 
-class ImageEditor
+class ImageProvider
 {
-    public ImageEditor(IImageCache cache)
+    public ImageProvider(IImageCache cache)
     {
         _image_cache = cache;
     }
