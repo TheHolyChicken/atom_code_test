@@ -19,23 +19,33 @@ class ImageEditor
         return "";
     }
 
-    public static Image getImage(string path, System.Drawing.Size desired_size, System.Drawing.Imaging.ImageFormat format, string watermark = "", Color background_color = default(Color)) {
+    private static Font getMaximumSizeFont(System.Drawing.Graphics graphics, Size available_space, string text, Font font)
+    {
+        SizeF font_space = graphics.MeasureString(text, font);
+        float max_height_scaling = available_space.Height / font_space.Height;
+        float max_width_scaling = available_space.Width / font_space.Width;
+        float scaling = Math.Min(max_height_scaling, max_width_scaling);
+        float scaled_font_size = font.Size * scaling;
+        return new Font(font.FontFamily, scaled_font_size, font.Style, GraphicsUnit.Pixel);
+    }
+
+    public static Image getImage(string path, System.Drawing.Size desired_image_size, System.Drawing.Imaging.ImageFormat format, string watermark = "", Color background_color = default(Color)) {
         if (!File.Exists(path)) {
             throw new FileNotFoundException();
         }
-        if (!dimensionsAreValid(desired_size)) {
+        if (!dimensionsAreValid(desired_image_size)) {
             throw new ArgumentOutOfRangeException("desired_size: The requested image dimensions must be greater than 0 and smaller than 4k resolution");
         }
 
         Image adjusted_image;
-        string cached_path = cachedImagePath(path, desired_size, format, watermark, background_color);
+        string cached_path = cachedImagePath(path, desired_image_size, format, watermark, background_color);
         if (File.Exists(cached_path)) {
             // use cached image file
             adjusted_image = new Bitmap(cached_path);
         }
         else {
             // generate new cached image file
-            adjusted_image = new Bitmap(desired_size.Width, desired_size.Height);
+            adjusted_image = new Bitmap(desired_image_size.Width, desired_image_size.Height);
             using (Graphics graphics = Graphics.FromImage(adjusted_image)) {
 
                 // paint the replacement background colour
@@ -45,16 +55,19 @@ class ImageEditor
 
                 // paint the original image
                 Image original_image = new Bitmap(path);
-                graphics.DrawImage(original_image, 0, 0, desired_size.Width, desired_size.Height);
+                graphics.DrawImage(original_image, 0, 0, desired_image_size.Width, desired_image_size.Height);
 
                 // paint the watermark
                 if (watermark.Length > 0) {
-                    var font = new Font(FontFamily.GenericSansSerif, 48, FontStyle.Regular, GraphicsUnit.Pixel);
-                    var color = Color.FromArgb(125, 0, 0, 0);
+                    var color = Color.FromArgb(60, 0, 0, 0);
                     var brush = new SolidBrush(color);
-                    var point = new Point(desired_size.Width / 10, desired_size.Height / 2);
+                    var font = new Font(FontFamily.GenericSansSerif, 12, FontStyle.Regular, GraphicsUnit.Pixel);
 
-                    graphics.DrawString(watermark, font, brush, point);
+                    var available_text_area = new Size(desired_image_size.Width * 9 / 10, desired_image_size.Height * 9 / 10);
+                    var scaled_font = getMaximumSizeFont(graphics, available_text_area, watermark, font);
+                    var font_space = graphics.MeasureString(watermark, scaled_font);
+                    var text_start_point = new Point((desired_image_size.Width - (int)font_space.Width) / 2, (desired_image_size.Height - (int)font_space.Height) / 2);
+                    graphics.DrawString(watermark, scaled_font, brush, text_start_point);
                 }
 
                 // save finished image to the cache
