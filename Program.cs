@@ -8,8 +8,11 @@ namespace atom_code_test
     {
         static void Main(string[] args)
         {
+            ImageCache.IImageCache cache = new ImageCache.IImageCache_Dummy();
+            var image_editor = new ImageEditor(cache);
+
             try {
-                ImageEditor.getImage("C:/work/atom_code_test/product_images/01_04_2019_001123.png"
+                image_editor.getImage("C:/work/atom_code_test/product_images/01_04_2019_001123.png"
                 , new System.Drawing.Size(537, 512)
                 , System.Drawing.Imaging.ImageFormat.Png
                 , "watermark"

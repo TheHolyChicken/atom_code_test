@@ -1,10 +1,16 @@
 using System;
 using System.Drawing;
 using System.IO;
+using ImageCache;
 
 class ImageEditor
 {
-    private static bool dimensionsAreValid(System.Drawing.Size size)
+    public ImageEditor(IImageCache cache)
+    {
+        _image_cache = cache;
+    }
+
+    private bool dimensionsAreValid(System.Drawing.Size size)
     {
         // max permissible size is 4k resolution
         const uint max_resolution_width = 3840;
@@ -15,13 +21,7 @@ class ImageEditor
         return width_valid && height_valid;
     }
 
-    private static string cachedImagePath(string path, System.Drawing.Size size, System.Drawing.Imaging.ImageFormat format, string watermark, Color background)
-    {
-        // TODO: implement cache, and return a valid string pointing to the cached image if it exists
-        return "";
-    }
-
-    private static Font getMaximumSizeFont(System.Drawing.Graphics graphics, Size available_space, string text, Font font)
+    private Font getMaximumSizeFont(System.Drawing.Graphics graphics, Size available_space, string text, Font font)
     {
         SizeF font_space = graphics.MeasureString(text, font);
         float max_height_scaling = available_space.Height / font_space.Height;
@@ -31,7 +31,7 @@ class ImageEditor
         return new Font(font.FontFamily, scaled_font_size, font.Style, GraphicsUnit.Pixel);
     }
 
-    private static bool imageChangesRequired(string path, System.Drawing.Size desired_image_size, System.Drawing.Imaging.ImageFormat format, string watermark, Color background_color)
+    private bool imageChangesRequired(string path, System.Drawing.Size desired_image_size, System.Drawing.Imaging.ImageFormat format, string watermark, Color background_color)
     {
         using (var file_stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
         {
@@ -46,7 +46,7 @@ class ImageEditor
         }
     }
 
-    public static Image getImage(string path, System.Drawing.Size desired_image_size, System.Drawing.Imaging.ImageFormat format, string watermark = "", Color background_color = default(Color))
+    public Image getImage(string path, System.Drawing.Size desired_image_size, System.Drawing.Imaging.ImageFormat format, string watermark = "", Color background_color = default(Color))
     {
         if (!File.Exists(path)) {
             throw new FileNotFoundException();
@@ -62,7 +62,7 @@ class ImageEditor
             requested_image = new Bitmap(path);
         }
         else {
-            string cached_path = cachedImagePath(path, desired_image_size, format, watermark, background_color);
+            string cached_path = _image_cache.cachedImagePath(path, desired_image_size, format, watermark, background_color);
             if (File.Exists(cached_path)) {
                 // use cached image file
                 requested_image = new Bitmap(cached_path);
@@ -106,4 +106,6 @@ class ImageEditor
 
         return requested_image;
     }
+
+    private IImageCache _image_cache;
 }
