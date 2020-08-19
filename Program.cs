@@ -13,7 +13,7 @@ namespace atom_code_test
                 , new System.Drawing.Size(537, 512)
                 , System.Drawing.Imaging.ImageFormat.Png
                 , "watermark"
-                , default(Color));
+                , System.Drawing.Color.Aquamarine);
             }
             catch (FileNotFoundException e)
             {

@@ -40,6 +40,7 @@ class ImageEditor
 
                 // paint the replacement background colour
                 if (background_color != default(Color)) {
+                    graphics.Clear(background_color);
                 }
 
                 // paint the original image
