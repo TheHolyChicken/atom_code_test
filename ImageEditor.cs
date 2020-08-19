@@ -49,6 +49,12 @@ class ImageEditor
 
                 // paint the watermark
                 if (watermark.Length > 0) {
+                    var font = new Font(FontFamily.GenericSansSerif, 48, FontStyle.Regular, GraphicsUnit.Pixel);
+                    var color = Color.FromArgb(125, 0, 0, 0);
+                    var brush = new SolidBrush(color);
+                    var point = new Point(desired_size.Width / 10, desired_size.Height / 2);
+
+                    graphics.DrawString(watermark, font, brush, point);
                 }
 
                 // save finished image to the cache
