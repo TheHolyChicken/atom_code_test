@@ -8,7 +8,15 @@ class ImageProvider
     public ImageProvider(IImageCache cache)
     {
         _image_cache = cache;
+
+        // set default max permissible size to 4k resolution
+        MaxResolutionWidth = 3840;
+        MaxResolutionHeight = 2160;
     }
+
+    public uint MaxResolutionWidth { get; set; }
+    public uint MaxResolutionHeight { get; set; }
+
 
     public Image getImage(string path, System.Drawing.Size desired_image_size, System.Drawing.Imaging.ImageFormat format, string watermark = "", Color background_color = default(Color))
     {
@@ -16,7 +24,7 @@ class ImageProvider
             throw new FileNotFoundException();
         }
         if (!dimensionsAreValid(desired_image_size)) {
-            throw new ArgumentOutOfRangeException("desired_size: The requested image dimensions must be greater than 0 and smaller than 4k resolution");
+            throw new ArgumentOutOfRangeException("desired_image_size: The requested image dimensions are out of bounds");
         }
 
         // if the requested image exactly matches the original image simply fetch it with no changes
@@ -36,12 +44,8 @@ class ImageProvider
 
     private bool dimensionsAreValid(System.Drawing.Size size)
     {
-        // max permissible size is 4k resolution
-        const uint max_resolution_width = 3840;
-        const uint max_resolution_height = 2160;
-
-        bool width_valid = (size.Width > 0 && size.Width <= max_resolution_width);
-        bool height_valid = (size.Height > 0 && size.Height <= max_resolution_height);
+        bool width_valid = (size.Width > 0 && size.Width <= MaxResolutionWidth);
+        bool height_valid = (size.Height > 0 && size.Height <= MaxResolutionHeight);
         return width_valid && height_valid;
     }
 
