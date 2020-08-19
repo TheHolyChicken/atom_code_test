@@ -11,18 +11,18 @@ namespace ImageCache {
             Directory.CreateDirectory(CacheFolder);
         }
 
-        public string cachedImagePath(string path, System.Drawing.Size size, System.Drawing.Imaging.ImageFormat format, string watermark, Color background)
+        public string cachedImagePath(ref ImageProperties desired_image)
         {
             // stub implementaiton
             // Here is where we *would* check if an image matching the arguments had already been generated and cached, and return the path to that image
             return "";
         }
 
-        public void saveImageToCache(Image image, string image_source_path, System.Drawing.Size desired_image_size, System.Drawing.Imaging.ImageFormat format, string watermark, Color background_color)
+        public void saveImageToCache(Image image, ref ImageProperties image_properties)
         {
             string cache_image_name = "test";
-            string cache_image_path = CacheFolder + cache_image_name + "." + format.ToString();
-            image.Save(cache_image_path, format);
+            string cache_image_path = CacheFolder + cache_image_name + "." + image_properties.Format.ToString();
+            image.Save(cache_image_path, image_properties.Format);
         }
 
         public string CacheFolder { get; set; }

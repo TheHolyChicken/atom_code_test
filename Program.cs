@@ -10,14 +10,16 @@ namespace atom_code_test
         {
             var cache_folder = "C:/work/atom_code_test/cache_images/";
             var cache = new ImageCache.IImageCache_Dummy(cache_folder);
-            var image_editor = new ImageProvider(cache);
+            var image_provider = new ImageProvider(cache);
 
-            try {
-                image_editor.getImage("C:/work/atom_code_test/product_images/01_04_2019_001123.png"
+            var image_properties = new ImageProperties("C:/work/atom_code_test/product_images/01_04_2019_001123.png"
                 , new System.Drawing.Size(537, 512)
                 , System.Drawing.Imaging.ImageFormat.Png
                 , "watermark"
-                , System.Drawing.Color.Aquamarine);
+                , System.Drawing.Color.DarkBlue);
+
+            try {
+                image_provider.getImage(ref image_properties);
             }
             catch (FileNotFoundException e)
             {
