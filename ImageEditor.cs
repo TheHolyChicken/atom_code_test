@@ -10,6 +10,30 @@ class ImageEditor
         _image_cache = cache;
     }
 
+    public Image getImage(string path, System.Drawing.Size desired_image_size, System.Drawing.Imaging.ImageFormat format, string watermark = "", Color background_color = default(Color))
+    {
+        if (!File.Exists(path)) {
+            throw new FileNotFoundException();
+        }
+        if (!dimensionsAreValid(desired_image_size)) {
+            throw new ArgumentOutOfRangeException("desired_size: The requested image dimensions must be greater than 0 and smaller than 4k resolution");
+        }
+
+        // if the requested image exactly matches the original image simply fetch it with no changes
+        if (!imageChangesRequired(path, desired_image_size, format, watermark, background_color)) {
+            return new Bitmap(path);
+        }
+
+        // if the requested image exactly matches one stored in the cache, return the cached image
+        string cached_path = _image_cache.cachedImagePath(path, desired_image_size, format, watermark, background_color);
+        if (File.Exists(cached_path)) {
+            return new Bitmap(cached_path);
+        }
+
+        // the requested image is new, so generate & cache it for future requests
+        return generateNewCachedImage(path, desired_image_size, format, watermark, background_color);
+    }
+
     private bool dimensionsAreValid(System.Drawing.Size size)
     {
         // max permissible size is 4k resolution
@@ -46,65 +70,37 @@ class ImageEditor
         }
     }
 
-    public Image getImage(string path, System.Drawing.Size desired_image_size, System.Drawing.Imaging.ImageFormat format, string watermark = "", Color background_color = default(Color))
+    private Image generateNewCachedImage(string path, System.Drawing.Size desired_image_size, System.Drawing.Imaging.ImageFormat format, string watermark, Color background_color)
     {
-        if (!File.Exists(path)) {
-            throw new FileNotFoundException();
-        }
-        if (!dimensionsAreValid(desired_image_size)) {
-            throw new ArgumentOutOfRangeException("desired_size: The requested image dimensions must be greater than 0 and smaller than 4k resolution");
-        }
+        var modified_image = new Bitmap(desired_image_size.Width, desired_image_size.Height);
+        using (var graphics = Graphics.FromImage(modified_image)) {
 
-
-        Image requested_image;
-        if (!imageChangesRequired(path, desired_image_size, format, watermark, background_color)) {
-            // the requested image exactly matches the original image, so simply fetch it with no changes
-            requested_image = new Bitmap(path);
-        }
-        else {
-            string cached_path = _image_cache.cachedImagePath(path, desired_image_size, format, watermark, background_color);
-            if (File.Exists(cached_path)) {
-                // use cached image file
-                requested_image = new Bitmap(cached_path);
+            // paint the replacement background colour
+            if (background_color != default(Color)) {
+                graphics.Clear(background_color);
             }
-            else {
-                // generate new cached image file
-                requested_image = new Bitmap(desired_image_size.Width, desired_image_size.Height);
-                using (Graphics graphics = Graphics.FromImage(requested_image)) {
 
-                    // paint the replacement background colour
-                    if (background_color != default(Color)) {
-                        graphics.Clear(background_color);
-                    }
+            // paint the original image
+            Image original_image = new Bitmap(path);
+            graphics.DrawImage(original_image, 0, 0, desired_image_size.Width, desired_image_size.Height);
 
-                    // paint the original image
-                    Image original_image = new Bitmap(path);
-                    graphics.DrawImage(original_image, 0, 0, desired_image_size.Width, desired_image_size.Height);
+            // paint the watermark
+            if (watermark.Length > 0) {
+                var color = Color.FromArgb(60, 0, 0, 0);
+                var brush = new SolidBrush(color);
+                var font = new Font(FontFamily.GenericSansSerif, 12, FontStyle.Regular, GraphicsUnit.Pixel);
 
-                    // paint the watermark
-                    if (watermark.Length > 0) {
-                        var color = Color.FromArgb(60, 0, 0, 0);
-                        var brush = new SolidBrush(color);
-                        var font = new Font(FontFamily.GenericSansSerif, 12, FontStyle.Regular, GraphicsUnit.Pixel);
-
-                        var available_text_area = new Size(desired_image_size.Width * 9 / 10, desired_image_size.Height * 9 / 10);
-                        var scaled_font = getMaximumSizeFont(graphics, available_text_area, watermark, font);
-                        var font_space = graphics.MeasureString(watermark, scaled_font);
-                        var text_start_point = new Point((desired_image_size.Width - (int)font_space.Width) / 2, (desired_image_size.Height - (int)font_space.Height) / 2);
-                        graphics.DrawString(watermark, scaled_font, brush, text_start_point);
-                    }
-
-                    // save finished image to the cache
-                    string cache_image_folder = "C:/work/atom_code_test/cache_images/";
-                    string cache_image_name = "test";
-                    string cache_image_path = cache_image_folder + cache_image_name + "." + format.ToString();
-                    Directory.CreateDirectory(cache_image_folder);
-                    requested_image.Save(cache_image_path, format);
-                }
+                var available_text_area = new Size(desired_image_size.Width * 9 / 10, desired_image_size.Height * 9 / 10);
+                var scaled_font = getMaximumSizeFont(graphics, available_text_area, watermark, font);
+                var font_space = graphics.MeasureString(watermark, scaled_font);
+                var text_start_point = new Point((desired_image_size.Width - (int)font_space.Width) / 2, (desired_image_size.Height - (int)font_space.Height) / 2);
+                graphics.DrawString(watermark, scaled_font, brush, text_start_point);
             }
-        }
 
-        return requested_image;
+            // save finished image to the cache
+            _image_cache.saveImageToCache(modified_image, path, desired_image_size, format, watermark, background_color);
+        }
+        return modified_image;
     }
 
     private IImageCache _image_cache;

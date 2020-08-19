@@ -8,7 +8,8 @@ namespace atom_code_test
     {
         static void Main(string[] args)
         {
-            ImageCache.IImageCache cache = new ImageCache.IImageCache_Dummy();
+            var cache_folder = "C:/work/atom_code_test/cache_images/";
+            var cache = new ImageCache.IImageCache_Dummy(cache_folder);
             var image_editor = new ImageEditor(cache);
 
             try {
