@@ -29,16 +29,19 @@ class ImageProvider
 
         // if the requested image exactly matches the original image simply fetch it with no changes
         if (!imageChangesRequired(ref desired_image)) {
+            Console.WriteLine($"Requested image matches unedited source image: '{desired_image.Path}'");
             return new Bitmap(desired_image.Path);
         }
 
         // if the requested image exactly matches one stored in the cache, return the cached image
         string cached_path = _image_cache.cachedImagePath(ref desired_image);
         if (File.Exists(cached_path)) {
+            Console.WriteLine($"Requested image matches cached image: '{cached_path}'");
             return new Bitmap(cached_path);
         }
 
         // the requested image is new, so generate & cache it for future requests
+        Console.WriteLine($"Requested image was new and has been introduced to the image cache");
         return generateNewCachedImage(ref desired_image);
     }
 
