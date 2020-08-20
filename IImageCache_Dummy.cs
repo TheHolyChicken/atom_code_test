@@ -25,6 +25,6 @@ namespace ImageCache {
             image.Save(cache_image_path, image_properties.Format);
         }
 
-        public string CacheFolder { get; set; }
+        public string CacheFolder { get; }
     }
 }
