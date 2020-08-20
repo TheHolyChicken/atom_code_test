@@ -4,9 +4,9 @@ using System.Drawing;
 using System.IO;
 
 namespace ImageCache {
-    class IImageCache_Dummy : IImageCache {
+    class IImageCache_SimpleFiles : IImageCache {
 
-        public IImageCache_Dummy(string cache_folder)
+        public IImageCache_SimpleFiles(string cache_folder)
         {
             CacheFolder = cache_folder;
             Directory.CreateDirectory(CacheFolder);

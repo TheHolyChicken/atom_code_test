@@ -62,7 +62,7 @@ namespace atom_code_test
         static void Main(string[] args)
         {
             var cache_folder = "C:/work/atom_code_test/cache_images/";
-            var cache = new ImageCache.IImageCache_Dummy(cache_folder);
+            var cache = new ImageCache.IImageCache_SimpleFiles(cache_folder);
             var image_provider = new ImageProvider(cache);
 
             var test_images = createTestImageRequests();
