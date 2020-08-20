@@ -20,12 +20,13 @@ namespace ImageCache {
             return cached_image_path;
         }
 
-        public void saveImageToCache(Image image, ref ImageProperties image_properties)
+        public string saveImageToCache(Image image, ref ImageProperties image_properties)
         {
             string cache_image_name = stored_images_.Count.ToString();
             string cache_image_path = CacheFolder + cache_image_name + "." + image_properties.Format.ToString();
             image.Save(cache_image_path, image_properties.Format);
             stored_images_.TryAdd(image_properties, cache_image_path);
+            return cache_image_path;
         }
 
         public string CacheFolder { get; }

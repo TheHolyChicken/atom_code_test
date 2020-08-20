@@ -41,8 +41,9 @@ class ImageProvider
         }
 
         // the requested image is new, so generate & cache it for future requests
-        Console.WriteLine($"Requested image was new and has been introduced to the image cache");
-        return generateNewCachedImage(ref desired_image);
+        var newly_cached_image = generateNewCachedImage(ref desired_image, out cached_path);
+        Console.WriteLine($"Requested image was new and has been introduced to the image cache: '{cached_path}'");
+        return newly_cached_image;
     }
 
     private bool dimensionsAreValid(System.Drawing.Size size)
@@ -77,7 +78,7 @@ class ImageProvider
         }
     }
 
-    private Image generateNewCachedImage(ref ImageProperties desired_image)
+    private Image generateNewCachedImage(ref ImageProperties desired_image, out string cached_path)
     {
         var modified_image = new Bitmap(desired_image.Size.Width, desired_image.Size.Height);
         using (var graphics = Graphics.FromImage(modified_image)) {
@@ -105,7 +106,7 @@ class ImageProvider
             }
 
             // save finished image to the cache
-            _image_cache.saveImageToCache(modified_image, ref desired_image);
+            cached_path = _image_cache.saveImageToCache(modified_image, ref desired_image);
         }
         return modified_image;
     }
