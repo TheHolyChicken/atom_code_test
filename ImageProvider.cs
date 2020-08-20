@@ -68,7 +68,7 @@ class ImageProvider
         {
             using (var source_image = Image.FromStream(file_stream, false, false))
             {
-                bool format_changed = desired_image.Format != source_image.RawFormat;
+                bool format_changed = !desired_image.Format.Equals(source_image.RawFormat);
                 bool size_changed = desired_image.Size != source_image.Size;
                 bool watermark_required = desired_image.Watermark.Length > 0;
                 bool colour_change_required = desired_image.BackgroundColor != default(Color);
